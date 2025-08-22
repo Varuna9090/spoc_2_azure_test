@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SPoC Chatbot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(44, 62, 80, 0.15);
+            padding: 32px 24px 24px 24px;
+        }
+        h1 {
+            text-align: center;
+            color: #2d3e50;
+            margin-bottom: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        #chat {
+            min-height: 350px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 24px;
+            padding: 12px;
+            background: #f7fafd;
+            border-radius: 8px;
+            border: 1px solid #e0eafc;
+        }
+        .msg {
+            margin: 12px 0;
+            padding: 10px 16px;
+            border-radius: 8px;
+            max-width: 80%;
+            word-break: break-word;
+            font-size: 1rem;
+        }
+        .user {
+            background: #eaf6ff;
+            color: #2d3e50;
+            align-self: flex-end;
+            text-align: right;
+            margin-left: auto;
+        }
+        .bot {
+            background: #d1e7dd;
+            color: #1b4332;
+            align-self: flex-start;
+            text-align: left;
+            margin-right: auto;
+        }
+        #input-area {
+            display: flex;
+            gap: 12px;
+        }
+        #input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #bcd0ee;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        #input:focus {
+            border-color: #2d3e50;
+        }
+        #send-btn {
+            background: #2d3e50;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0 24px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        #send-btn:hover {
+            background: #1b263b;
+        }
+        @media (max-width: 600px) {
+            #container {
+                padding: 16px 4px;
+            }
+            #chat {
+                min-height: 200px;
+                max-height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="container">
+    <h1>SPoC Chatbot</h1>
+    <div id="chat">
+        <div class="msg bot">Welcome to SPoC Chatbot!<br>Type your input or <b>help</b> for instructions.</div>
+    </div>
+    <div id="input-area">
+        <input id="input" autocomplete="off" placeholder="Type here..." />
+        <button id="send-btn">Send</button>
+    </div>
+</div>
+<script>
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('send-btn');
+function addMsg(text, who) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + who;
+    div.innerHTML = text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+function sendMessage() {
+    if (input.value.trim()) {
+        addMsg(input.value, 'user');
+        fetch('/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: input.value})
+        })
+        .then(r => r.json())
+        .then(d => addMsg(d.response, 'bot'));
+        input.value = '';
+    }
+}
+input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') sendMessage();
+});
+sendBtn.addEventListener('click', sendMessage);
+</script>
+</body>
+</html>
