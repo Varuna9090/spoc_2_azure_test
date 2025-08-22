@@ -1,6 +1,2 @@
-flask 
-request
-jsonify
-numpy
-pandas
+Flask:2.2.5
 
