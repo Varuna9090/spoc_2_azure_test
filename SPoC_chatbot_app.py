@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import os
 import subprocess
 import threading
-import webbrowser
+#import webbrowser
 
 app = Flask(__name__)
 
@@ -123,11 +123,11 @@ def chat():
 
 if __name__ == "__main__":
     import sys
-    # Only open browser if not running in Flask's reloader subprocess
-    if os.environ.get("WERKZEUG_RUN_MAIN") is None:
-        print("Open http://localhost:5000 in your browser.")
-        threading.Timer(1.5, lambda: webbrowser.open('http://localhost:5000')).start()
-    try:
-        app.run(debug=True, host="localhost", port=5000)
-    except SystemExit:
-        pass  # Prevent SystemExit exception from crashing the script
+    # # Only open browser if not running in Flask's reloader subprocess
+    # if os.environ.get("WERKZEUG_RUN_MAIN") is None:
+    #     print("Open http://localhost:5000 in your browser.")
+    #     threading.Timer(1.5, lambda: webbrowser.open('http://localhost:5000')).start()
+    # try:
+    #     app.run(debug=True, host="localhost", port=5000)
+    # except SystemExit:
+    #     pass  # Prevent SystemExit exception from crashing the script
