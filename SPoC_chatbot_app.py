@@ -122,6 +122,7 @@ def chat():
     return jsonify({"response": "Type 'help' for instructions or continue with your input."})
 
 if __name__ == "__main__":
+    print('success')
     #import sys
     # # Only open browser if not running in Flask's reloader subprocess
     # if os.environ.get("WERKZEUG_RUN_MAIN") is None:
