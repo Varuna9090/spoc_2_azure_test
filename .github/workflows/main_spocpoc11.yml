@@ -34,14 +34,14 @@ jobs:
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
-      - name: Upload artifact for deployment jobs
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-app
-          path: |
-            .
-            startup.txt
-            !venv/
+      # - name: Upload artifact for deployment jobs
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: python-app
+      #     path: |
+      #       .
+      #       startup.txt
+      #       !venv/
 
   deploy:
     runs-on: ubuntu-latest
@@ -70,3 +70,4 @@ jobs:
           app-name: 'spocpoc11'
           slot-name: 'Production'
           package: .
+
