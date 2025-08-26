@@ -21,13 +21,51 @@ SESSIONS = {}
 def validate_input(value, qtype):
     if not value or value.strip() == "":
         return False, "Input cannot be empty."
-    if qtype == "path" and not os.path.exists(value):
-        return False, "Path does not exist."
+    
+    if qtype == "path":
+        # For production environments, also check if path is accessible
+        if not os.path.exists(value):
+            # Additional checks for production environments
+            try:
+                # Try to access the directory to check permissions
+                os.listdir(value) if os.path.isdir(value) else os.path.dirname(value)
+                return False, "Path does not exist."
+            except PermissionError:
+                return False, "Path exists but is not accessible (permission denied)."
+            except FileNotFoundError:
+                return False, "Path does not exist."
+            except Exception as e:
+                return False, f"Path validation error: {str(e)}"
+        
+        # Check if path is readable
+        try:
+            if os.path.isdir(value):
+                os.listdir(value)
+            else:
+                # For file paths, check if parent directory is accessible
+                parent_dir = os.path.dirname(value)
+                if parent_dir and not os.access(parent_dir, os.R_OK):
+                    return False, "Parent directory is not accessible."
+        except PermissionError:
+            return False, "Path is not accessible (permission denied)."
+        except Exception as e:
+            return False, f"Path accessibility error: {str(e)}"
+    
     if qtype == "file":
         if not os.path.isfile(value):
             return False, "File does not exist."
         if not value.lower().endswith('.csv'):
             return False, "File must be a CSV."
+        
+        # Check file accessibility in production
+        try:
+            with open(value, 'r') as f:
+                pass  # Just check if file can be opened
+        except PermissionError:
+            return False, "File exists but is not accessible (permission denied)."
+        except Exception as e:
+            return False, f"File accessibility error: {str(e)}"
+    
     if qtype == "bool" and value not in ["0", "1"]:
         return False, "Enter 1 or 0."
     return True, ""
