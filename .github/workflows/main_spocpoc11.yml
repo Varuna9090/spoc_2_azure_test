@@ -40,7 +40,7 @@ jobs:
           name: python-app
           path: |
             .
-            startup.txt
+            # startup.txt
             !venv/
 
   deploy:
@@ -70,3 +70,5 @@ jobs:
           app-name: 'spocpoc11'
           slot-name: 'Production'
           package: .
+
+
