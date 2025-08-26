@@ -23,33 +23,43 @@ def validate_input(value, qtype):
         return False, "Input cannot be empty."
     
     if qtype == "path":
-        # For production environments, also check if path is accessible
-        if not os.path.exists(value):
-            # Additional checks for production environments
-            try:
-                # Try to access the directory to check permissions
-                os.listdir(value) if os.path.isdir(value) else os.path.dirname(value)
-                return False, "Path does not exist."
-            except PermissionError:
-                return False, "Path exists but is not accessible (permission denied)."
-            except FileNotFoundError:
-                return False, "Path does not exist."
-            except Exception as e:
-                return False, f"Path validation error: {str(e)}"
+        # Normalize path for cross-platform compatibility
+        normalized_path = os.path.normpath(value.strip())
         
-        # Check if path is readable
+        # For Azure/production environments, use a more direct approach
         try:
-            if os.path.isdir(value):
-                os.listdir(value)
+            # Try to access the path directly - this is more reliable than os.path.exists in some environments
+            if os.path.isabs(normalized_path):
+                test_path = normalized_path
             else:
-                # For file paths, check if parent directory is accessible
-                parent_dir = os.path.dirname(value)
-                if parent_dir and not os.access(parent_dir, os.R_OK):
-                    return False, "Parent directory is not accessible."
+                test_path = os.path.abspath(normalized_path)
+            
+            # Test actual access to the path
+            if os.path.isdir(test_path):
+                os.listdir(test_path)
+            elif os.path.isfile(test_path):
+                # If it's a file, just check if we can read it
+                with open(test_path, 'r') as f:
+                    pass
+            else:
+                # Path doesn't exist as file or directory
+                # Check if parent directory exists for creating new files/dirs
+                parent_dir = os.path.dirname(test_path)
+                if parent_dir:
+                    os.listdir(parent_dir)
+                else:
+                    return False, "Path does not exist and cannot be created."
+            
+        except FileNotFoundError:
+            return False, "Path does not exist."
         except PermissionError:
-            return False, "Path is not accessible (permission denied)."
+            return False, "Path exists but is not accessible (permission denied)."
+        except IsADirectoryError:
+            return False, "Expected a file path but found a directory."
+        except NotADirectoryError:
+            return False, "Expected a directory path but found a file."
         except Exception as e:
-            return False, f"Path accessibility error: {str(e)}"
+            return False, f"Path validation error: {str(e)}"
     
     if qtype == "file":
         if not os.path.isfile(value):
